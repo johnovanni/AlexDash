@@ -25,6 +25,7 @@ public static class LevelBuilder
         SpawnNpcs(world, behavior, rng, AlexKind.Skater, Math.Min(5, 1 + level / 2), 250 * speedScale);
         SpawnNpcs(world, behavior, rng, AlexKind.Runner, Math.Min(6, 2 + (level - 1) / 2), 150 * speedScale);
         SpawnNpcs(world, behavior, rng, AlexKind.Pusher, Math.Min(4, 1 + (level - 1) / 2), 60 * speedScale);
+        SpawnNpcs(world, behavior, rng, AlexKind.Gamer, Math.Min(3, 1 + (level - 1) / 3), 0);
 
         return world;
     }
@@ -74,6 +75,12 @@ public static class LevelBuilder
             else
             {
                 behavior.PickNewDirection(alex);
+            }
+
+            if (kind == AlexKind.Gamer)
+            {
+                alex.HasController = true;
+                alex.RageTimer = 2 + rng.NextDouble() * 4; // first meltdown comes a bit sooner
             }
 
             alex.Id = world.Npcs.Count + 1; // the player is 0

@@ -24,7 +24,7 @@ public sealed class Hud(TextBlock levelText, TextBlock timeText, TextBlock score
             livesPanel.Children.Clear();
             for (int i = 0; i < session.Lives; i++)
             {
-                var icon = Sprites.CreateAlex(AlexKind.Player, out _, out _);
+                var icon = Sprites.CreateAlex(AlexKind.Player).Root;
                 icon.LayoutTransform = new ScaleTransform(0.7, 0.7);
                 icon.Margin = new Thickness(2, 0, 2, 0);
                 livesPanel.Children.Add(icon);

@@ -1,6 +1,6 @@
 namespace AlexDash.Game;
 
-public enum VoiceLine { TwennyWon, NotStupid, NotStupidHigh, NotStupidLow, HawkCry }
+public enum VoiceLine { TwennyWon, NotStupid, NotStupidHigh, NotStupidLow, HawkCry, Waah, Hackers }
 
 /// <summary>Something an Alex says: shown as a speech bubble and played as a voice line.</summary>
 /// <param name="Interrupt">Cut off whatever is playing, rather than being skipped if busy.</param>

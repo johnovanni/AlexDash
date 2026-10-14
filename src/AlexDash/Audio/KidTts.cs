@@ -28,6 +28,8 @@ public static class KidTts
             [VoiceLine.NotStupidHigh] = Kid(synth, StupidText, 2.9),
             [VoiceLine.NotStupidLow] = Kid(synth, StupidText, 2.1),
             [VoiceLine.HawkCry] = HawkCry(synth),
+            [VoiceLine.Waah] = Waah(synth),
+            [VoiceLine.Hackers] = Kid(synth, "Hackers!", 2.7),
         };
     }
 
@@ -53,6 +55,18 @@ public static class KidTts
             double sweep = progress < 0.3 ? 3.6 : 3.6 - (progress - 0.3) / 0.7 * 1.6;
             double warble = 1 + 0.04 * Math.Sin(progress * Math.PI * 2 * 9);
             return sweep * warble;
+        }));
+    }
+
+    /// <summary>A kid bawling: a long "Waaaahh" that wobbles like sobbing and sags at the end.</summary>
+    private static byte[] Waah(SpeechSynthesizer synth)
+    {
+        var pcm = Synthesize(synth, "Waaaaaaahhh!", -7);
+        return ToWav(Resample(pcm, progress =>
+        {
+            double sag = progress < 0.4 ? 2.9 : 2.9 - (progress - 0.4) / 0.6 * 0.7;
+            double sob = 1 + 0.07 * Math.Sin(progress * Math.PI * 2 * 7);
+            return sag * sob;
         }));
     }
 

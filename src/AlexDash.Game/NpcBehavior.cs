@@ -2,7 +2,10 @@ using static AlexDash.Game.Tuning;
 
 namespace AlexDash.Game;
 
-/// <summary>How the other Alexes move: runners zig-zag, skaters cruise diagonals, pushers shove crates.</summary>
+/// <summary>
+/// How the other Alexes move: runners zig-zag, skaters cruise diagonals, pushers shove crates,
+/// and gamers stand still, absorbed in their game.
+/// </summary>
 public sealed class NpcBehavior(World world, Random rng)
 {
     private static readonly (int dx, int dy)[] Directions = [(1, 0), (-1, 0), (0, 1), (0, -1)];
@@ -20,18 +23,27 @@ public sealed class NpcBehavior(World world, Random rng)
         double moveDt = a.SlowTimer > 0 ? dt * BumpSlowFactor : dt;
         a.SlowTimer -= dt;
 
+        // Knockback (from a thrown controller) carries them regardless of where they're heading.
+        double kx = a.KnockVx * dt, ky = a.KnockVy * dt;
+        double decay = Math.Exp(-KnockbackDecay * dt);
+        a.KnockVx *= decay;
+        a.KnockVy *= decay;
+
         if (a.Kind == AlexKind.Pusher)
         {
-            MovePusher(a, moveDt);
+            MovePusher(a, a.Vx * moveDt + kx, a.Vy * moveDt + ky);
             return;
         }
 
-        a.X += a.Vx * moveDt;
-        a.Y += a.Vy * moveDt;
+        a.X += a.Vx * moveDt + kx;
+        a.Y += a.Vy * moveDt + ky;
         Physics.BounceOffWalls(a);
 
         foreach (var o in world.Obstacles)
         {
+            // Running into a crate means falling in (LevelSimulation handles that), unless they
+            // just climbed out of one.
+            if (o.Kind == ObstacleKind.Crate && a.BoxImmunity <= 0) continue;
             if (!Physics.Overlap(a.Bounds, o.Bounds, out double dx, out double dy)) continue;
             a.X += dx;
             a.Y += dy;
@@ -41,6 +53,14 @@ public sealed class NpcBehavior(World world, Random rng)
 
     public void PickNewDirection(Alex a)
     {
+        if (a.Kind == AlexKind.Gamer)
+        {
+            // Gamers don't wander; they're busy playing.
+            a.Vx = a.Vy = 0;
+            a.TurnTimer = double.PositiveInfinity;
+            return;
+        }
+
         double angle;
         if (a.Kind == AlexKind.Skater)
         {
@@ -97,14 +117,14 @@ public sealed class NpcBehavior(World world, Random rng)
         return false;
     }
 
-    private void MovePusher(Alex a, double dt)
+    private void MovePusher(Alex a, double mx, double my)
     {
-        double mx = a.Vx * dt, my = a.Vy * dt;
         Physics.Shift(a, mx, my);
 
         if (PusherBlocked(a))
         {
             Physics.Shift(a, -mx, -my);
+            a.KnockVx = a.KnockVy = 0;
             TurnPusher(a);
         }
     }

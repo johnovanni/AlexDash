@@ -14,6 +14,7 @@ public sealed class World(Alex player, Box exit, Box startZone)
 
     public List<Obstacle> Obstacles { get; } = [];
     public List<Alex> Npcs { get; } = [];
+    public List<Projectile> Projectiles { get; } = [];
 
     public IEnumerable<Alex> Alexes => Npcs.Prepend(Player);
 }

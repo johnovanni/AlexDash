@@ -19,13 +19,24 @@ public static class Sprites
     private static readonly Brush Shoes = B("#263238");
     private static readonly Brush Dark = B("#212121");
 
-    public static Canvas CreateAlex(AlexKind kind, out TranslateTransform bob, out ScaleTransform flip)
+    /// <param name="Root">The whole Alex.</param>
+    /// <param name="Bob">Small offsets for walking bounce and shaking.</param>
+    /// <param name="Flip">Mirror to face left or right.</param>
+    /// <param name="Tumble">Rotates the whole Alex, e.g. upside down when headfirst in a crate.</param>
+    /// <param name="Controller">The game controller a gamer is holding (null for other Alexes).</param>
+    public sealed record AlexSprite(
+        Canvas Root, TranslateTransform Bob, ScaleTransform Flip, RotateTransform Tumble, FrameworkElement? Controller);
+
+    public static AlexSprite CreateAlex(AlexKind kind)
     {
         var root = new Canvas { Width = AlexW, Height = AlexH };
         var body = new Canvas { Width = AlexW, Height = AlexH };
 
-        flip = new ScaleTransform(1, 1, AlexW / 2, AlexH / 2);
-        bob = new TranslateTransform();
+        var tumble = new RotateTransform(0, AlexW / 2, AlexH / 2);
+        root.RenderTransform = tumble;
+
+        var flip = new ScaleTransform(1, 1, AlexW / 2, AlexH / 2);
+        var bob = new TranslateTransform();
         var transforms = new TransformGroup();
         transforms.Children.Add(flip);
         transforms.Children.Add(bob);
@@ -36,8 +47,10 @@ public static class Sprites
             AlexKind.Player => B("#E53935"),
             AlexKind.Skater => B("#1E88E5"),
             AlexKind.Runner => B("#FB8C00"),
+            AlexKind.Gamer => B("#00897B"),
             _ => B("#8E24AA"),
         };
+        FrameworkElement? controller = null;
 
         if (kind == AlexKind.Skater)
         {
@@ -59,6 +72,12 @@ public static class Sprites
         {
             Put(body, new Rectangle { Width = 10, Height = 4, RadiusX = 2, RadiusY = 2, Fill = shirt }, 20, 21);
             Put(body, new Ellipse { Width = 5, Height = 5, Fill = Skin }, 28, 20);
+        }
+        else if (kind == AlexKind.Gamer)
+        {
+            // Both hands out front, gripping the controller.
+            Put(body, new Rectangle { Width = 7, Height = 4, RadiusX = 2, RadiusY = 2, Fill = shirt }, 20, 23);
+            controller = Put(body, CreateController(), 23, 20);
         }
         else
         {
@@ -86,10 +105,33 @@ public static class Sprites
             case AlexKind.Skater:
                 Put(body, new Border { Width = 20, Height = 7, Background = B("#43A047"), CornerRadius = new CornerRadius(9, 9, 1, 1) }, 6, 0);
                 break;
+            case AlexKind.Gamer:
+                // Headset: band over the head and an ear cup.
+                Put(body, new Border
+                {
+                    Width = 22, Height = 10, BorderBrush = Dark,
+                    BorderThickness = new Thickness(2.5, 2.5, 2.5, 0), CornerRadius = new CornerRadius(11, 11, 0, 0),
+                }, 5, -1);
+                Put(body, new Rectangle { Width = 5, Height = 7, RadiusX = 2, RadiusY = 2, Fill = Dark }, 6, 7);
+                break;
         }
 
         root.Children.Add(body);
-        return root;
+        return new AlexSprite(root, bob, flip, tumble, controller);
+    }
+
+    /// <summary>A game controller, held by a gamer or flying through the air.</summary>
+    public static FrameworkElement CreateController()
+    {
+        var c = new Canvas { Width = Tuning.ControllerW, Height = Tuning.ControllerH };
+        Put(c, new Ellipse { Width = 7, Height = 8, Fill = B("#37474F") }, 0, 3);
+        Put(c, new Ellipse { Width = 7, Height = 8, Fill = B("#37474F") }, 11, 3);
+        Put(c, new Rectangle { Width = 14, Height = 7, RadiusX = 3, RadiusY = 3, Fill = B("#455A64") }, 2, 1);
+        Put(c, new Rectangle { Width = 4, Height = 1.5, Fill = Brushes.White }, 3, 4); // d-pad
+        Put(c, new Rectangle { Width = 1.5, Height = 4, Fill = Brushes.White }, 4.25, 2.75);
+        Put(c, new Ellipse { Width = 2.5, Height = 2.5, Fill = B("#E53935") }, 12, 2);
+        Put(c, new Ellipse { Width = 2.5, Height = 2.5, Fill = B("#43A047") }, 14, 4.5);
+        return c;
     }
 
     public static FrameworkElement CreateObstacle(ObstacleKind kind, double w, double h)
