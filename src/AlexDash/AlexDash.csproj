@@ -7,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <RootNamespace>AlexDash</RootNamespace>
+    <ApplicationIcon>Assets\AlexDash.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +23,10 @@
   <ItemGroup>
     <!-- Recorded voice lines; any missing one falls back to text-to-speech. -->
     <None Update="Sounds\*.wav" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\AlexDash.ico" />
   </ItemGroup>
 
 </Project>

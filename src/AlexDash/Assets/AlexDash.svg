@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <clipPath id="tile"><rect width="1024" height="1024" rx="200"/></clipPath>
+    <pattern id="grass" width="256" height="256" patternUnits="userSpaceOnUse">
+      <rect width="256" height="256" fill="#8BC34A"/>
+      <rect width="128" height="128" fill="#7CB342"/>
+      <rect x="128" y="128" width="128" height="128" fill="#7CB342"/>
+    </pattern>
+    <filter id="halo" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.4"/>
+      <feFlood flood-color="#FFFF00" flood-opacity="0.9"/>
+      <feComposite operator="in" in2="SourceAlpha" result="dummy"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.4" result="blur"/>
+      <feFlood flood-color="#FFFF00" flood-opacity="0.9"/>
+      <feComposite in2="blur" operator="in" result="glow"/>
+      <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <g clip-path="url(#tile)">
+    <rect width="1024" height="1024" fill="url(#grass)"/>
+    <!-- Alex's head, same shapes and colours as Sprites.CreateAlex(AlexKind.Player) -->
+    <g transform="translate(8 250) scale(28)" filter="url(#halo)">
+      <ellipse cx="16" cy="10.5" rx="9" ry="8.5" fill="#F2C29B"/>
+      <path d="M6 6 Q6 1 15.5 1 Q25 1 25 6 Q25 8 23 8 L8 8 Q6 8 6 6 Z" fill="#6B3E1F"/>
+      <polygon points="6,6 9,10 11,6" fill="#6B3E1F"/>
+      <circle cx="15.5" cy="10.5" r="1.5" fill="#212121"/>
+      <circle cx="21.5" cy="10.5" r="1.5" fill="#212121"/>
+      <ellipse cx="18" cy="14.5" rx="3" ry="1.5" fill="#B71C1C"/>
+      <path d="M6 6 Q6 0 16 0 Q26 0 26 6 Z" fill="#FFC107"/>
+      <rect x="21" y="5" width="9" height="2.5" fill="#FFA000"/>
+    </g>
+  </g>
+</svg>
